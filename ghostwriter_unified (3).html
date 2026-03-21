@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghostwriter AI | Hub de Inteligência</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --success-bg: #ecfdf5;
+      --warning-bg: #fffbeb;
+      --warning-text: #92400e;
+      --warning-border: #fde68a;
+      --error: #ef4444;
+      --error-bg: #fef2f2;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container { width: 100%; max-width: 680px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 60px -10px rgba(0,0,0,0.12); }
+    .hidden { display: none !important; }
+
+    .panel-header { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); padding: 32px 40px; color: white; border-radius: 20px 20px 0 0; }
+    .panel-header h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .panel-header p { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+    .user-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 600; margin-top: 12px; }
+    .user-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+
+    /* TABS */
+    .tab-nav { display: flex; border-bottom: 1.5px solid var(--border); background: var(--card-bg); }
+    .tab-btn { flex: 1; padding: 14px 10px; font-size: 13px; font-weight: 600; font-family: inherit; background: transparent; border: none; border-bottom: 2.5px solid transparent; color: var(--text-sub); cursor: pointer; transition: all 0.15s; margin-bottom: -1.5px; }
+    .tab-btn:hover { color: var(--text-main); background: var(--bg); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--card-bg); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .panel-body { padding: 32px 40px; }
+    .login-wrap { padding: 40px; }
+    .login-wrap .logo { text-align: center; margin-bottom: 32px; }
+    .login-wrap .logo h2 { font-size: 26px; font-weight: 700; color: var(--text-main); }
+    .login-wrap .logo p { font-size: 14px; color: var(--text-sub); margin-top: 6px; }
+
+    .form-group { margin-bottom: 20px; }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+    input[type="email"], input[type="text"], select {
+      width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius);
+      font-size: 15px; font-family: inherit; color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s; background: white;
+    }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    input[readonly] { background: var(--bg); cursor: default; }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin: 28px 0 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .warning-banner { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); padding: 14px 16px; border-radius: var(--radius); font-size: 13px; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; margin-bottom: 24px; }
+
+    /* TIPO CARDS */
+    .tipo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .tipo-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 12px; background: white; user-select: none; }
+    .tipo-card:hover { border-color: var(--primary); background: var(--primary-light); }
+    .tipo-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .tipo-icon { font-size: 24px; flex-shrink: 0; }
+    .tipo-info .tipo-label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .tipo-info .tipo-desc { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+    /* UPLOAD AREAS */
+    .upload-area { display: none; margin-top: 16px; }
+    .upload-area.active { display: block; }
+    .upload-card { background: #fafafa; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 16px 20px; transition: border-color 0.2s, background 0.2s; }
+    .upload-card:hover { border-color: var(--primary); background: var(--primary-light); }
+    .upload-card label { text-transform: none; font-size: 14px; font-weight: 600; color: var(--text-main); letter-spacing: 0; margin-bottom: 10px; cursor: pointer; }
+    .upload-card input[type="file"] { width: 100%; font-size: 13px; font-family: 'DM Mono', monospace; color: var(--text-sub); border: none; padding: 0; background: transparent; }
+    .chunk-info { display: flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 8px; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 12px; }
+    .limit-info { display: flex; align-items: center; gap: 6px; background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); border-radius: 8px; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 8px; }
+
+    /* BUTTONS */
+    .btn { width: 100%; padding: 14px 20px; border-radius: var(--radius); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-primary { background: var(--primary); color: white; margin-top: 8px; }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+    .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); margin-top: 8px; }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-logout { background: transparent; color: var(--text-sub); border: 1.5px solid var(--border); margin-top: 8px; font-size: 13px; padding: 10px; }
+    .btn-logout:hover { background: var(--error-bg); color: var(--error); border-color: var(--error); }
+    .btn-sm { padding: 10px 16px; font-size: 13px; width: auto; margin-top: 0; }
+
+    .status-box { margin-top: 20px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-family: 'DM Mono', monospace; border-left: 4px solid var(--primary); background: var(--primary-light); color: var(--primary); line-height: 1.5; }
+    .status-box.success { background: var(--success-bg); border-color: var(--success); color: #065f46; }
+    .status-box.error { background: var(--error-bg); border-color: var(--error); color: #991b1b; }
+
+    .history-section { margin-top: 24px; }
+    .history-search { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 14px; font-family: inherit; margin-bottom: 12px; }
+    .history-search:focus { outline: none; border-color: var(--primary); }
+    .history-box { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; max-height: 280px; overflow-y: auto; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: var(--bg); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sub); border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+    tbody td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--bg); }
+
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .tag-conteudo { background: #dbeafe; color: #1e40af; }
+    .tag-estilo { background: #fce7f3; color: #9d174d; }
+
+    .empty-state { text-align: center; padding: 32px; color: var(--text-sub); font-size: 14px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg); border-radius: var(--radius); padding: 16px; text-align: center; }
+    .stat-card .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
+    .stat-card .stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+    /* ── COMENTÁRIOS LINKEDIN ── */
+    .li-accounts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .li-account-card {
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 16px; cursor: pointer; transition: all 0.15s;
+      background: white; position: relative;
+    }
+    .li-account-card:hover { border-color: #2563eb; }
+    .li-account-card.active { border: 2px solid #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+    .li-account-card.blocked { opacity: 0.5; pointer-events: none; }
+    .li-acct-indicator { position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: none; }
+    .li-account-card.active .li-acct-indicator { display: block; }
+    .li-acct-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .li-badge-dennis { background: #dbeafe; color: #1e40af; }
+    .li-badge-marcio { background: #ede9fe; color: #5b21b6; }
+    .li-badge-active { background: #d1fae5; color: #065f46; }
+    .li-badge-blocked { background: var(--error-bg); color: #991b1b; }
+    .li-acct-name { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+    .li-acct-phone { font-size: 11px; color: var(--text-sub); margin-bottom: 12px; }
+    .li-progress-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
+    .li-progress-bg { height: 4px; background: var(--border); border-radius: 2px; }
+    .li-progress-fill { height: 4px; border-radius: 2px; transition: width 0.4s; }
+    .li-fill-dennis { background: #3b82f6; }
+    .li-fill-marcio { background: #8b5cf6; }
+    .li-fill-blocked { background: var(--error); }
+
+    .li-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+    .li-stat { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; }
+    .li-stat-num { font-size: 26px; font-weight: 700; color: var(--primary); }
+    .li-stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+    .li-btn-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .li-btn { flex: 1; padding: 12px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--text-main); transition: all 0.15s; text-align: center; }
+    .li-btn:hover { background: var(--bg); }
+    .li-btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .li-btn-primary:hover { background: var(--primary-hover); }
+    .li-btn-danger { border-color: #fca5a5; color: #991b1b; }
+    .li-btn-danger:hover { background: var(--error-bg); }
+
+    .li-log-list { list-style: none; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; max-height: 200px; overflow-y: auto; }
+    .li-log-item { display: flex; gap: 10px; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 12px; font-family: 'DM Mono', monospace; }
+    .li-log-item:last-child { border-bottom: none; }
+    .li-log-time { color: var(--text-sub); min-width: 40px; }
+    .li-log-acct { font-weight: 700; min-width: 52px; }
+    .li-log-dennis { color: #2563eb; }
+    .li-log-marcio { color: #7c3aed; }
+    .li-log-system { color: var(--text-sub); }
+    .li-log-msg { color: var(--text-sub); flex: 1; }
+
+    @media (max-width: 480px) {
+      .panel-body, .panel-header, .login-wrap { padding: 24px 20px; }
+      .row-2 { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+      .tipo-grid { grid-template-columns: 1fr; }
+      .li-accounts { grid-template-columns: 1fr; }
+      .li-btn-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-screen" class="container">
+  <div class="login-wrap">
+    <div class="logo">
+      <h2>✍️ Ghostwriter AI</h2>
+      <p>Identifique-se para gerenciar sua base de conhecimento.</p>
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@email.com.br">
+    </div>
+    <button class="btn btn-primary" id="btnLogin">Acessar Painel →</button>
+    <p id="login-error" style="color: var(--error); font-size: 13px; text-align: center; margin-top: 12px;"></p>
+  </div>
+</div>
+
+<!-- ═══════════════ PAINEL PRINCIPAL ═══════════════ -->
+<div id="upload-screen" class="container hidden">
+
+  <div class="panel-header">
+    <h2>✍️ Ghostwriter AI</h2>
+    <p>Hub de Inteligência — Gerencie sua base de conhecimento</p>
+    <div class="user-badge">
+      <span class="dot"></span>
+      <span id="welcome-msg">Usuário</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('ingestao', this)">📂 Base de Conhecimento</button>
+    <button class="tab-btn" onclick="switchTab('comentarios', this)">💬 Comentários LinkedIn</button>
+  </div>
+
+  <!-- ═══ TAB: INGESTÃO ═══ -->
+  <div class="tab-pane active" id="tab-ingestao">
+    <div class="panel-body">
+
+      <input type="hidden" id="user-id">
+      <input type="hidden" id="email">
+      <input type="hidden" id="whatsapp">
+      <input type="hidden" id="tipo_documento_value">
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-label">Total de Chunks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-conteudo">—</div>
+          <div class="stat-label">Conteúdo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-estilo">—</div>
+          <div class="stat-label">Estilo</div>
+        </div>
+      </div>
+
+      <!-- AVISO -->
+      <div class="warning-banner">
+        <span style="font-size: 18px; flex-shrink: 0;">⚠️</span>
+        <span><strong>Antes de enviar:</strong> Consulte o histórico para verificar se o conteúdo já foi ingerido. Duplicatas prejudicam a qualidade da IA.</span>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="section-title">Configurações de Ingestão</div>
+      <div class="row-2">
+        <div class="form-group">
+          <label>Origem</label>
+          <select id="origem">
+            <option value="">Selecione a origem...</option>
+            <option value="Podcast">🎙️ Podcast</option>
+            <option value="Livro Própria Autoria">📖 Livro — Própria Autoria</option>
+            <option value="Artigo">📄 Artigo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tópico</label>
+          <select id="topico">
+            <option value="">Selecione o tópico...</option>
+            <option value="Vendas">💰 Vendas</option>
+            <option value="Negociação">🤝 Negociação</option>
+            <option value="LinkedIn">💼 LinkedIn</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TIPO DE CONTEÚDO -->
+      <div class="section-title">Tipo de Conteúdo</div>
+      <div class="tipo-grid">
+        <div class="tipo-card" onclick="selecionarTipo('livro_proprio', this)">
+          <span class="tipo-icon">📖</span>
+          <div class="tipo-info">
+            <div class="tipo-label">Livro Próprio</div>
+            <div class="tipo-desc">Conteúdo e ideias do Márcio</div>
+          </div>
+        </div>
+        <div class="tipo-card" onclick="selecionarTipo('artigo', this)">
+          <span class="tipo-icon">📄</span>
+          <div class="tipo-info">
+            <div class="tipo-label">Artigo / PDF Curto</div>
+            <div class="tipo-desc">Até ~20 páginas</div>
+          </div>
+        </div>
+        <div class="tipo-card" onclick="selecionarTipo('podcast_conteudo', this)">
+          <span class="tipo-icon">🎙️</span>
+          <div class="tipo-info">
+            <div class="tipo-label">Podcast — Conteúdo</div>
+            <div class="tipo-desc">O que o Márcio ensina</div>
+          </div>
+        </div>
+        <div class="tipo-card" onclick="selecionarTipo('podcast_estilo', this)">
+          <span class="tipo-icon">🎭</span>
+          <div class="tipo-info">
+            <div class="tipo-label">Podcast — Estilo</div>
+            <div class="tipo-desc">Como o Márcio fala</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD DINÂMICO -->
+      <div class="upload-area" id="upload-livro_proprio">
+        <div class="upload-card">
+          <label>📖 Arquivo do Livro (PDF ou DOCX)</label>
+          <input type="file" id="arquivo_livro_proprio" accept=".pdf,.docx" multiple>
+        </div>
+        <div class="chunk-info">⚙️ Chunk 1200 / Overlap 200 — otimizado para livros longos</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo — envie um arquivo por vez se necessário</div>
+      </div>
+
+      <div class="upload-area" id="upload-artigo">
+        <div class="upload-card">
+          <label>📄 Arquivo do Artigo (PDF, DOCX ou TXT)</label>
+          <input type="file" id="arquivo_artigo" accept=".pdf,.docx,.txt" multiple>
+        </div>
+        <div class="chunk-info">⚙️ Chunk 800 / Overlap 150 — otimizado para documentos curtos</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo — envie um arquivo por vez se necessário</div>
+      </div>
+
+      <div class="upload-area" id="upload-podcast_conteudo">
+        <div class="upload-card">
+          <label>🎙️ Áudio de Conteúdo (MP3, WAV, M4A)</label>
+          <input type="file" id="arquivo_podcast_conteudo" accept=".mp3,.wav,.m4a,.ogg" multiple>
+        </div>
+        <div class="chunk-info">⚙️ Chunk 700 / Overlap 120 — otimizado para transcrições de conteúdo</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo — comprima o áudio se necessário</div>
+      </div>
+
+      <div class="upload-area" id="upload-podcast_estilo">
+        <div class="upload-card">
+          <label>🎭 Áudio de Estilo (MP3, WAV, M4A)</label>
+          <input type="file" id="arquivo_podcast_estilo" accept=".mp3,.wav,.m4a,.ogg" multiple>
+        </div>
+        <div class="chunk-info">⚙️ Chunk 600 / Overlap 100 — otimizado para capturar expressões e jargões</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo — comprima o áudio se necessário</div>
+      </div>
+
+      <button class="btn btn-primary" id="btnEnviar">🚀 Sincronizar Agora</button>
+      <button class="btn btn-outline" id="btnHistorico">🔍 Consultar Histórico da Minha Base</button>
+      <button class="btn btn-logout" id="btnLogout">Sair da conta</button>
+
+      <!-- HISTÓRICO -->
+      <div id="history-section" class="history-section hidden">
+        <div class="section-title">Conteúdos na Base</div>
+        <input type="text" id="historySearch" class="history-search" placeholder="🔍 Filtrar por arquivo, tópico ou origem...">
+        <div class="history-box">
+          <table>
+            <thead>
+              <tr>
+                <th>Arquivo</th>
+                <th>Tipo</th>
+                <th>Origem</th>
+                <th>Data</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="historico-tbody">
+              <tr><td colspan="4" class="empty-state">Clique em "Consultar Histórico" para carregar.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="status-box" id="status">Pronto para iniciar.</div>
+
+    </div>
+  </div>
+
+  <!-- ═══ TAB: COMENTÁRIOS LINKEDIN ═══ -->
+  <div class="tab-pane" id="tab-comentarios">
+    <div class="panel-body">
+
+      <!-- STATS -->
+      <div class="li-stats-row">
+        <div class="li-stat">
+          <div class="li-stat-num" id="li-stat-total">0</div>
+          <div class="li-stat-label">Comentários hoje</div>
+        </div>
+        <div class="li-stat">
+          <div class="li-stat-num" id="li-stat-active" style="font-size:16px; padding-top:6px;">—</div>
+          <div class="li-stat-label">Conta ativa</div>
+        </div>
+      </div>
+
+      <div class="section-title">Alternar conta</div>
+      <div class="li-accounts" id="li-accounts"></div>
+
+      <div class="li-btn-row">
+        <button class="li-btn li-btn-primary" onclick="liTrigger()">🚀 Disparar comentário agora</button>
+        <button class="li-btn" onclick="liResetDay()">🔄 Zerar dia</button>
+      </div>
+
+      <div class="section-title">Log de ações</div>
+      <ul class="li-log-list" id="li-log">
+        <li class="li-log-item">
+          <span class="li-log-time">—</span>
+          <span class="li-log-acct li-log-system">sistema</span>
+          <span class="li-log-msg">Nenhuma ação registrada.</span>
+        </li>
+      </ul>
+
+    </div>
+  </div>
+
+</div><!-- /upload-screen -->
+
+<script>
+  // ═══════════════════════════════════════════════
+  // CONFIGURAÇÕES
+  // ═══════════════════════════════════════════════
+  const SUPABASE_URL = "https://jbgqeyvjawwsheuwgyzb.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiZ3FleXZqYXd3c2hldXdneXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMTY1NzcsImV4cCI6MjA4NjU5MjU3N30.DIkXgReMx7JbjUX5k5glyvcleifGzkcLIQGOXkrQJVk";
+  const WEBHOOK_N8N     = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/upload-documentos";
+  const WEBHOOK_LINKEDIN = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/iniciar-comentarios";
+
+  const LI_ACCOUNTS = [
+    { id: 'dennis', label: 'Dennis', phone: '+55 11 97660-0520', badgeClass: 'li-badge-dennis', fillClass: 'li-fill-dennis', logClass: 'li-log-dennis' },
+    { id: 'marcio',  label: 'Márcio',  phone: '+55 11 97655-9197', badgeClass: 'li-badge-marcio',  fillClass: 'li-fill-marcio',  logClass: 'li-log-marcio'  }
+  ];
+  const LI_LIMIT = 25;
+
+  // ═══════════════════════════════════════════════
+  // SUPABASE
+  // ═══════════════════════════════════════════════
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+
+  let baseDeDadosLocal = [];
+  let tipoSelecionado = '';
+
+  // ═══════════════════════════════════════════════
+  // TABS
+  // ═══════════════════════════════════════════════
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'comentarios') liRender();
+  }
+
+  // ═══════════════════════════════════════════════
+  // TIPO DE CONTEÚDO
+  // ═══════════════════════════════════════════════
+  function selecionarTipo(tipo, el) {
+    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.upload-area').forEach(a => a.classList.remove('active'));
+    el.classList.add('selected');
+    tipoSelecionado = tipo;
+    document.getElementById('tipo_documento_value').value = tipo;
+    const area = document.getElementById('upload-' + tipo);
+    if (area) area.classList.add('active');
+  }
+
+  // ═══════════════════════════════════════════════
+  // HELPERS INGESTÃO
+  // ═══════════════════════════════════════════════
+  function setStatus(msg, type = '') {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status-box' + (type ? ' ' + type : '');
+  }
+
+  function cleanFileName(n) {
+    return n.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  }
+
+  function renderHistorico(data) {
+    const tbody = document.getElementById('historico-tbody');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum conteúdo encontrado.</td></tr>';
+      return;
+    }
+    const grupos = {};
+    data.forEach(i => {
+      const fileName = i.metadata?.file_name || i.metadata?.topic || 'sem-nome';
+      const docType = i.document_type || i.metadata?.document_type || 'conteudo';
+      const key = `${fileName}||${docType}`;
+      if (!grupos[key]) {
+        grupos[key] = { file_name: fileName, document_type: docType, source: i.metadata?.source || '-', created_at: i.created_at, chunks: 0 };
+      }
+      grupos[key].chunks++;
+    });
+    const items = Object.values(grupos).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum conteúdo encontrado.</td></tr>';
+      return;
+    }
+    items.forEach(g => {
+      const tagClass = g.document_type === 'estilo_analise' ? 'tag-estilo' : 'tag-conteudo';
+      const tagLabel = g.document_type === 'estilo_analise' ? 'Estilo' : 'Conteúdo';
+      const fileName = encodeURIComponent(g.file_name);
+      const docType = encodeURIComponent(g.document_type);
+      tbody.insertAdjacentHTML('beforeend', `<tr>
+        <td><strong>${g.file_name}</strong><br><span style="font-size:11px;color:var(--text-sub)">${g.chunks} chunks</span></td>
+        <td><span class="tag ${tagClass}">${tagLabel}</span></td>
+        <td>${g.source}</td>
+        <td>${new Date(g.created_at).toLocaleDateString('pt-BR')}</td>
+        <td><button onclick="deletarArquivo('${fileName}','${docType}')" style="background:var(--error-bg);color:var(--error);border:1px solid var(--error);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;">🗑️</button></td>
+      </tr>`);
+    });
+  }
+
+  async function deletarArquivo(fileNameEncoded, docTypeEncoded) {
+    const fileName = decodeURIComponent(fileNameEncoded);
+    const docType = decodeURIComponent(docTypeEncoded || '');
+    const label = docType === 'estilo_analise' ? 'Estilo' : 'Conteúdo';
+    if (!confirm(`Deletar chunks de "${fileName}" (${label})?\n\nEsta ação não pode ser desfeita.`)) return;
+    const userId = document.getElementById('user-id').value;
+    setStatus('🗑️ Deletando chunks...', '');
+    const { error } = await sb.from('documents').delete().eq('user_id', userId).eq('document_type', docType).eq('metadata->>file_name', fileName);
+    if (error) { setStatus(`❌ Erro ao deletar: ${error.message}`, 'error'); return; }
+    setStatus(`✅ "${fileName}" (${label}) deletado com sucesso!`, 'success');
+    await carregarHistorico();
+    await loadStats(userId);
+  }
+
+  async function loadStats(userId) {
+    const { data } = await sb.from('documents').select('document_type').eq('user_id', userId);
+    if (!data) return;
+    document.getElementById('stat-total').textContent = data.length;
+    document.getElementById('stat-conteudo').textContent = data.filter(d => (d.document_type || '').includes('conteudo')).length;
+    document.getElementById('stat-estilo').textContent = data.filter(d => (d.document_type || '').includes('estilo')).length;
+  }
+
+  // ═══════════════════════════════════════════════
+  // LOGIN
+  // ═══════════════════════════════════════════════
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const errorEl = document.getElementById('login-error');
+    errorEl.textContent = '';
+    if (!email) { errorEl.textContent = 'Digite seu e-mail.'; return; }
+    const { data, error } = await sb.from('users').select('*').eq('email', email).single();
+    if (!data || error) { errorEl.textContent = 'E-mail não encontrado. Verifique e tente novamente.'; return; }
+    document.getElementById('user-id').value = data.id;
+    document.getElementById('email').value = data.email;
+    document.getElementById('whatsapp').value = data.whatsapp_number || '';
+    document.getElementById('welcome-msg').textContent = data.name || data.email;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('upload-screen').classList.remove('hidden');
+    await loadStats(data.id);
+  });
+
+  // ═══════════════════════════════════════════════
+  // LOGOUT
+  // ═══════════════════════════════════════════════
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    document.getElementById('upload-screen').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-email').value = '';
+    document.getElementById('history-section').classList.add('hidden');
+    tipoSelecionado = '';
+    setStatus('Pronto para iniciar.');
+  });
+
+  // ═══════════════════════════════════════════════
+  // FILTRO HISTÓRICO
+  // ═══════════════════════════════════════════════
+  document.getElementById('historySearch').addEventListener('input', (e) => {
+    const termo = e.target.value.toLowerCase();
+    const filtrados = baseDeDadosLocal.filter(i =>
+      (i.metadata?.topic || '').toLowerCase().includes(termo) ||
+      (i.metadata?.source || '').toLowerCase().includes(termo) ||
+      (i.metadata?.file_name || '').toLowerCase().includes(termo)
+    );
+    renderHistorico(filtrados);
+  });
+
+  // ═══════════════════════════════════════════════
+  // UPLOAD
+  // ═══════════════════════════════════════════════
+  async function uploadArquivo(inputId, categoria) {
+    const input = document.getElementById(inputId);
+    if (!input || !input.files.length) return [];
+    const result = [];
+    const topicoBase = document.getElementById('topico').value || 'Sem Tópico';
+    for (const f of [...input.files]) {
+      if (f.size > 50 * 1024 * 1024) {
+        setStatus(`❌ "${f.name}" excede o limite de 50MB (${(f.size / 1024 / 1024).toFixed(1)}MB). Comprima o arquivo e tente novamente.`, 'error');
+        continue;
+      }
+      const topicoIndividual = `${topicoBase} - ${f.name}`;
+      const userId = document.getElementById('user-id').value;
+      const { data: existe } = await sb.rpc('check_file_exists', { p_user_id: userId, p_file_name: f.name });
+      if (existe) {
+        if (!confirm(`"${f.name}" já está na sua base.\nDeseja enviar novamente mesmo assim?`)) continue;
+      }
+      const path = `${Date.now()}_${cleanFileName(f.name)}`;
+      const { error } = await sb.storage.from('Upload_temp').upload(path, f);
+      if (error) { setStatus(`❌ Erro ao fazer upload de ${f.name}: ${error.message}`, 'error'); continue; }
+      result.push({ path, file_name: f.name, categoria, topico_individual: topicoIndividual });
+    }
+    return result;
+  }
+
+  document.getElementById('btnEnviar').addEventListener('click', async () => {
+    if (!tipoSelecionado) { setStatus('⚠️ Selecione o tipo de conteúdo antes de enviar.', 'error'); return; }
+    if (!document.getElementById('origem').value) { setStatus('⚠️ Selecione a origem do conteúdo.', 'error'); return; }
+    if (!document.getElementById('topico').value) { setStatus('⚠️ Selecione o tópico do conteúdo.', 'error'); return; }
+    setStatus('🚀 Processando uploads...');
+    try {
+      const userId = document.getElementById('user-id').value;
+      const { data: historicoAtual } = await sb.from('documents').select('metadata, document_type, created_at').eq('user_id', userId);
+      baseDeDadosLocal = historicoAtual || [];
+      const mapaInputs = {
+        livro_proprio:    { inputId: 'arquivo_livro_proprio',    categoria: 'livro_proprio' },
+        artigo:           { inputId: 'arquivo_artigo',           categoria: 'artigo' },
+        podcast_conteudo: { inputId: 'arquivo_podcast_conteudo', categoria: 'audio_conteudo' },
+        podcast_estilo:   { inputId: 'arquivo_podcast_estilo',   categoria: 'audio_estilo' },
+      };
+      const config = mapaInputs[tipoSelecionado];
+      const files = await uploadArquivo(config.inputId, config.categoria);
+      if (files.length === 0) { setStatus('Nenhum arquivo novo para enviar.', 'error'); return; }
+      setStatus(`📡 Enviando ${files.length} arquivo(s) para processamento...`);
+      const response = await fetch(WEBHOOK_N8N, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          whatsapp: document.getElementById('whatsapp').value,
+          origem: document.getElementById('origem').value,
+          topico: document.getElementById('topico').value,
+          tipo_documento: tipoSelecionado,
+          files
+        })
+      });
+      if (!response.ok) throw new Error(`Webhook retornou status ${response.status}`);
+      setStatus(`✅ ${files.length} arquivo(s) sincronizado(s) com sucesso!`, 'success');
+      await loadStats(userId);
+    } catch (e) {
+      setStatus('❌ Erro: ' + e.message, 'error');
+    }
+  });
+
+  // ═══════════════════════════════════════════════
+  // HISTÓRICO
+  // ═══════════════════════════════════════════════
+  async function carregarHistorico() {
+    const userId = document.getElementById('user-id').value;
+    const { data, error } = await sb.rpc('get_documents_summary', { p_user_id: userId });
+    if (error) { await carregarHistoricoFallback(userId); return; }
+    baseDeDadosLocal = data || [];
+    renderHistoricoAgrupado(data || []);
+    document.getElementById('history-section').classList.remove('hidden');
+  }
+
+  async function carregarHistoricoFallback(userId) {
+    let allData = [];
+    let from = 0;
+    const pageSize = 1000;
+    while (true) {
+      const { data, error } = await sb.from('documents').select('document_type, metadata, created_at').eq('user_id', userId).order('created_at', { ascending: false }).range(from, from + pageSize - 1);
+      if (error || !data || data.length === 0) break;
+      allData = [...allData, ...data];
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+    baseDeDadosLocal = allData;
+    renderHistorico(allData);
+    document.getElementById('history-section').classList.remove('hidden');
+  }
+
+  function renderHistoricoAgrupado(data) {
+    const tbody = document.getElementById('historico-tbody');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum conteúdo encontrado.</td></tr>';
+      return;
+    }
+    data.forEach(g => {
+      const tagClass = g.document_type === 'estilo_analise' ? 'tag-estilo' : 'tag-conteudo';
+      const tagLabel = g.document_type === 'estilo_analise' ? 'Estilo' : 'Conteúdo';
+      const fileName = encodeURIComponent(g.file_name || 'sem-nome');
+      const docType = encodeURIComponent(g.document_type || '');
+      tbody.insertAdjacentHTML('beforeend', `<tr>
+        <td><strong>${g.file_name || 'sem-nome'}</strong><br><span style="font-size:11px;color:var(--text-sub)">${g.chunks} chunks</span></td>
+        <td><span class="tag ${tagClass}">${tagLabel}</span></td>
+        <td>${g.source || '-'}</td>
+        <td>${g.created_at ? new Date(g.created_at).toLocaleDateString('pt-BR') : '-'}</td>
+        <td><button onclick="deletarArquivo('${fileName}','${docType}')" style="background:var(--error-bg);color:var(--error);border:1px solid var(--error);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;">🗑️</button></td>
+      </tr>`);
+    });
+  }
+
+  document.getElementById('btnHistorico').addEventListener('click', async () => {
+    setStatus('🔍 Carregando histórico...');
+    await carregarHistorico();
+    setStatus('✅ Histórico carregado com sucesso!', 'success');
+  });
+
+  // ═══════════════════════════════════════════════
+  // COMENTÁRIOS LINKEDIN
+  // ═══════════════════════════════════════════════
+  const LI_STORE_KEY = 'gw_li_state';
+
+  function liLoadState() {
+    try {
+      const raw = localStorage.getItem(LI_STORE_KEY);
+      const s = raw ? JSON.parse(raw) : {};
+      const today = new Date().toISOString().slice(0, 10);
+      if (s.date !== today) { s.counts = { dennis: 0, marcio: 0 }; s.date = today; s.logs = []; }
+      s.active = s.active || 'dennis';
+      s.counts = s.counts || { dennis: 0, marcio: 0 };
+      s.logs = s.logs || [];
+      return s;
+    } catch(e) { return { active: 'dennis', counts: { dennis: 0, marcio: 0 }, logs: [], date: new Date().toISOString().slice(0,10) }; }
+  }
+
+  function liSaveState(s) {
+    try { localStorage.setItem(LI_STORE_KEY, JSON.stringify(s)); } catch(e) {}
+  }
+
+  function liTimeNow() {
+    const n = new Date();
+    return n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+  }
+
+  function liAddLog(s, accId, msg) {
+    const acc = LI_ACCOUNTS.find(a => a.id === accId);
+    s.logs.unshift({ time: liTimeNow(), accId, label: acc ? acc.label : 'sistema', logClass: acc ? acc.logClass : 'li-log-system', msg });
+    if (s.logs.length > 30) s.logs = s.logs.slice(0, 30);
+  }
+
+  function liRender() {
+    const s = liLoadState();
+    const grid = document.getElementById('li-accounts');
+    grid.innerHTML = '';
+    let total = 0;
+
+    LI_ACCOUNTS.forEach(acc => {
+      const count = s.counts[acc.id] || 0;
+      const isActive = s.active === acc.id;
+      const isBlocked = count >= LI_LIMIT;
+      const pct = Math.min(100, Math.round((count / LI_LIMIT) * 100));
+      total += count;
+
+      const badgeLabel = isBlocked ? 'bloqueado' : (isActive ? 'ativa' : 'inativa');
+      const badgeClass = isBlocked ? 'li-badge-blocked' : (isActive ? 'li-badge-active' : acc.badgeClass);
+      const fillClass = isBlocked ? 'li-fill-blocked' : acc.fillClass;
+
+      const card = document.createElement('div');
+      card.className = 'li-account-card' + (isActive ? ' active' : '') + (isBlocked ? ' blocked' : '');
+      card.onclick = () => liSetActive(acc.id);
+      card.innerHTML = `
+        <div class="li-acct-indicator"></div>
+        <span class="li-acct-badge ${badgeClass}">${badgeLabel}</span>
+        <div class="li-acct-name">${acc.label}</div>
+        <div class="li-acct-phone">${acc.phone}</div>
+        <div class="li-progress-meta"><span>hoje</span><span>${count} / ${LI_LIMIT}</span></div>
+        <div class="li-progress-bg"><div class="li-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+      `;
+      grid.appendChild(card);
+    });
+
+    document.getElementById('li-stat-total').textContent = total;
+    const activeAcc = LI_ACCOUNTS.find(a => a.id === s.active);
+    if (activeAcc) {
+      const cnt = s.counts[s.active] || 0;
+      document.getElementById('li-stat-active').textContent = activeAcc.label;
+    }
+
+    const logList = document.getElementById('li-log');
+    if (!s.logs.length) {
+      logList.innerHTML = '<li class="li-log-item"><span class="li-log-time">—</span><span class="li-log-acct li-log-system">sistema</span><span class="li-log-msg">Nenhuma ação registrada.</span></li>';
+    } else {
+      logList.innerHTML = s.logs.map(l =>
+        `<li class="li-log-item">
+          <span class="li-log-time">${l.time}</span>
+          <span class="li-log-acct ${l.logClass}">${l.label}</span>
+          <span class="li-log-msg">${l.msg}</span>
+        </li>`
+      ).join('');
+    }
+  }
+
+  function liSetActive(id) {
+    const s = liLoadState();
+    s.active = id;
+    const acc = LI_ACCOUNTS.find(a => a.id === id);
+    liAddLog(s, id, 'Conta alterada para ' + acc.label + '.');
+    liSaveState(s);
+    liRender();
+    fetch(WEBHOOK_LINKEDIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'set_account', conta: id, label: acc.label })
+    }).catch(() => {});
+  }
+
+  function liTrigger() {
+    const s = liLoadState();
+    const acc = LI_ACCOUNTS.find(a => a.id === s.active);
+    const count = s.counts[s.active] || 0;
+    if (count >= LI_LIMIT) {
+      alert(`Limite de ${LI_LIMIT} comentários atingido para ${acc.label}. Troque de conta ou zere o dia.`);
+      return;
+    }
+    liAddLog(s, s.active, 'Disparando fluxo...');
+    liSaveState(s);
+    liRender();
+
+    fetch(WEBHOOK_LINKEDIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'trigger', conta: s.active, label: acc.label })
+    })
+    .then(() => {
+      const s2 = liLoadState();
+      s2.counts[s2.active] = (s2.counts[s2.active] || 0) + 1;
+      liAddLog(s2, s2.active, `Fluxo disparado. Total hoje: ${s2.counts[s2.active]}`);
+      liSaveState(s2);
+      liRender();
+    })
+    .catch(() => {
+      const s2 = liLoadState();
+      liAddLog(s2, 'system', 'Erro ao chamar o webhook.');
+      liSaveState(s2);
+      liRender();
+    });
+  }
+
+  function liResetDay() {
+    if (!confirm('Zerar contadores do dia para ambas as contas?')) return;
+    const s = liLoadState();
+    s.counts = { dennis: 0, marcio: 0 };
+    s.date = new Date().toISOString().slice(0, 10);
+    liAddLog(s, 'system', 'Contadores zerados manualmente.');
+    liSaveState(s);
+    liRender();
+  }
+</script>
+</body>
+</html>
