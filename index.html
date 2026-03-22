@@ -199,7 +199,6 @@
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen" class="container">
   <div class="login-wrap">
     <div class="logo">
@@ -215,7 +214,6 @@
   </div>
 </div>
 
-<!-- PAINEL PRINCIPAL -->
 <div id="upload-screen" class="container hidden">
 
   <div class="panel-header">
@@ -233,7 +231,6 @@
     <button class="tab-btn" onclick="switchTab('configuracoes', this)">⚙️ Configurações</button>
   </div>
 
-  <!-- TAB: INGESTÃO -->
   <div class="tab-pane active" id="tab-ingestao">
     <div class="panel-body">
       <input type="hidden" id="user-id">
@@ -374,7 +371,6 @@
     </div>
   </div>
 
-  <!-- TAB: COMENTÁRIOS LINKEDIN -->
   <div class="tab-pane" id="tab-comentarios">
     <div class="panel-body">
 
@@ -414,7 +410,6 @@
     </div>
   </div>
 
-  <!-- TAB: CONFIGURAÇÕES -->
   <div class="tab-pane" id="tab-configuracoes">
     <div class="panel-body">
 
@@ -869,14 +864,26 @@
     }).catch(() => {});
   }
 
+  let isTriggering = false; // Trava de segurança para evitar duplo clique
+
   function liTrigger() {
+    if (isTriggering) return; // Se já estiver a processar, ignora o clique extra
+    
     const s = liLoadState();
     const acc = LI_ACCOUNTS.find(a => a.id === s.active);
     const count = s.counts[s.active] || 0;
+    
     if (count >= LI_LIMIT) {
       alert(`Limite de ${LI_LIMIT} comentários atingido para ${acc.label}. Troque de conta ou zere o dia.`);
       return;
     }
+    
+    isTriggering = true; // Ativa a trava
+    const btn = document.querySelector('.li-btn-primary');
+    const textoOriginal = btn.innerHTML;
+    btn.innerHTML = '⏳ Disparando...'; // Feedback visual no botão
+    btn.style.opacity = '0.7';
+
     liAddLog(s, s.active, 'Disparando fluxo...');
     liSaveState(s);
     liRender();
@@ -898,6 +905,11 @@
       liAddLog(s2, 'system', 'Erro ao chamar o webhook.');
       liSaveState(s2);
       liRender();
+    })
+    .finally(() => {
+      isTriggering = false; // Liberta a trava
+      btn.innerHTML = textoOriginal; // Devolve o texto ao botão
+      btn.style.opacity = '1';
     });
   }
 
