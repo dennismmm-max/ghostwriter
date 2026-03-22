@@ -48,9 +48,8 @@
     .user-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 600; margin-top: 12px; }
     .user-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
 
-    /* TABS */
-    .tab-nav { display: flex; border-bottom: 1.5px solid var(--border); background: var(--card-bg); }
-    .tab-btn { flex: 1; padding: 14px 10px; font-size: 13px; font-weight: 600; font-family: inherit; background: transparent; border: none; border-bottom: 2.5px solid transparent; color: var(--text-sub); cursor: pointer; transition: all 0.15s; margin-bottom: -1.5px; }
+    .tab-nav { display: flex; border-bottom: 1.5px solid var(--border); background: var(--card-bg); overflow-x: auto; }
+    .tab-btn { flex: 1; min-width: 120px; padding: 14px 10px; font-size: 12px; font-weight: 600; font-family: inherit; background: transparent; border: none; border-bottom: 2.5px solid transparent; color: var(--text-sub); cursor: pointer; transition: all 0.15s; margin-bottom: -1.5px; white-space: nowrap; }
     .tab-btn:hover { color: var(--text-main); background: var(--bg); }
     .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--card-bg); }
     .tab-pane { display: none; }
@@ -66,13 +65,14 @@
 
     label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 
-    input[type="email"], input[type="text"], select {
+    input[type="email"], input[type="text"], input[type="number"], select, textarea {
       width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius);
       font-size: 15px; font-family: inherit; color: var(--text-main);
       transition: border-color 0.2s, box-shadow 0.2s; background: white;
     }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; font-size: 13px; }
     select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     input[readonly] { background: var(--bg); cursor: default; }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -82,7 +82,6 @@
 
     .warning-banner { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); padding: 14px 16px; border-radius: var(--radius); font-size: 13px; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; margin-bottom: 24px; }
 
-    /* TIPO CARDS */
     .tipo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .tipo-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 12px; background: white; user-select: none; }
     .tipo-card:hover { border-color: var(--primary); background: var(--primary-light); }
@@ -91,7 +90,6 @@
     .tipo-info .tipo-label { font-size: 13px; font-weight: 700; color: var(--text-main); }
     .tipo-info .tipo-desc { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
 
-    /* UPLOAD AREAS */
     .upload-area { display: none; margin-top: 16px; }
     .upload-area.active { display: block; }
     .upload-card { background: #fafafa; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 16px 20px; transition: border-color 0.2s, background 0.2s; }
@@ -101,7 +99,6 @@
     .chunk-info { display: flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 8px; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 12px; }
     .limit-info { display: flex; align-items: center; gap: 6px; background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); border-radius: 8px; padding: 8px 12px; font-size: 11px; font-family: 'DM Mono', monospace; margin-top: 8px; }
 
-    /* BUTTONS */
     .btn { width: 100%; padding: 14px 20px; border-radius: var(--radius); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: var(--primary); color: white; margin-top: 8px; }
     .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
@@ -109,7 +106,8 @@
     .btn-outline:hover { background: var(--primary-light); }
     .btn-logout { background: transparent; color: var(--text-sub); border: 1.5px solid var(--border); margin-top: 8px; font-size: 13px; padding: 10px; }
     .btn-logout:hover { background: var(--error-bg); color: var(--error); border-color: var(--error); }
-    .btn-sm { padding: 10px 16px; font-size: 13px; width: auto; margin-top: 0; }
+    .btn-success { background: var(--success); color: white; margin-top: 8px; }
+    .btn-success:hover { background: #059669; }
 
     .status-box { margin-top: 20px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-family: 'DM Mono', monospace; border-left: 4px solid var(--primary); background: var(--primary-light); color: var(--primary); line-height: 1.5; }
     .status-box.success { background: var(--success-bg); border-color: var(--success); color: #065f46; }
@@ -137,13 +135,9 @@
     .stat-card .stat-num { font-size: 28px; font-weight: 700; color: var(--primary); }
     .stat-card .stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
-    /* ── COMENTÁRIOS LINKEDIN ── */
+    /* COMENTÁRIOS LINKEDIN */
     .li-accounts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .li-account-card {
-      border: 1.5px solid var(--border); border-radius: var(--radius);
-      padding: 16px; cursor: pointer; transition: all 0.15s;
-      background: white; position: relative;
-    }
+    .li-account-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all 0.15s; background: white; position: relative; }
     .li-account-card:hover { border-color: #2563eb; }
     .li-account-card.active { border: 2px solid #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
     .li-account-card.blocked { opacity: 0.5; pointer-events: none; }
@@ -163,8 +157,8 @@
     .li-fill-marcio { background: #8b5cf6; }
     .li-fill-blocked { background: var(--error); }
 
-    .li-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
-    .li-stat { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; }
+    .li-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .li-stat { background: var(--bg); border-radius: var(--radius); padding: 14px 16px; text-align: center; }
     .li-stat-num { font-size: 26px; font-weight: 700; color: var(--primary); }
     .li-stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 
@@ -186,10 +180,17 @@
     .li-log-system { color: var(--text-sub); }
     .li-log-msg { color: var(--text-sub); flex: 1; }
 
+    /* CONFIGURAÇÕES */
+    .config-field { margin-bottom: 20px; }
+    .config-field label { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+    .config-field .config-hint { font-size: 11px; color: var(--text-sub); margin-bottom: 8px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .config-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .config-loading { text-align: center; padding: 40px; color: var(--text-sub); font-size: 14px; }
+
     @media (max-width: 480px) {
       .panel-body, .panel-header, .login-wrap { padding: 24px 20px; }
-      .row-2 { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: 1fr; }
+      .row-2, .config-row-2 { grid-template-columns: 1fr; }
+      .stats-row, .li-stats-row { grid-template-columns: 1fr; }
       .tipo-grid { grid-template-columns: 1fr; }
       .li-accounts { grid-template-columns: 1fr; }
       .li-btn-row { flex-direction: column; }
@@ -198,7 +199,7 @@
 </head>
 <body>
 
-<!-- ═══════════════ LOGIN ═══════════════ -->
+<!-- LOGIN -->
 <div id="login-screen" class="container">
   <div class="login-wrap">
     <div class="logo">
@@ -214,7 +215,7 @@
   </div>
 </div>
 
-<!-- ═══════════════ PAINEL PRINCIPAL ═══════════════ -->
+<!-- PAINEL PRINCIPAL -->
 <div id="upload-screen" class="container hidden">
 
   <div class="panel-header">
@@ -226,22 +227,20 @@
     </div>
   </div>
 
-  <!-- TABS -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('ingestao', this)">📂 Base de Conhecimento</button>
-    <button class="tab-btn" onclick="switchTab('comentarios', this)">💬 Comentários LinkedIn</button>
+    <button class="tab-btn active" onclick="switchTab('ingestao', this)">📂 Base</button>
+    <button class="tab-btn" onclick="switchTab('comentarios', this)">💬 Comentários</button>
+    <button class="tab-btn" onclick="switchTab('configuracoes', this)">⚙️ Configurações</button>
   </div>
 
-  <!-- ═══ TAB: INGESTÃO ═══ -->
+  <!-- TAB: INGESTÃO -->
   <div class="tab-pane active" id="tab-ingestao">
     <div class="panel-body">
-
       <input type="hidden" id="user-id">
       <input type="hidden" id="email">
       <input type="hidden" id="whatsapp">
       <input type="hidden" id="tipo_documento_value">
 
-      <!-- STATS -->
       <div class="stats-row">
         <div class="stat-card">
           <div class="stat-num" id="stat-total">—</div>
@@ -257,13 +256,11 @@
         </div>
       </div>
 
-      <!-- AVISO -->
       <div class="warning-banner">
         <span style="font-size: 18px; flex-shrink: 0;">⚠️</span>
         <span><strong>Antes de enviar:</strong> Consulte o histórico para verificar se o conteúdo já foi ingerido. Duplicatas prejudicam a qualidade da IA.</span>
       </div>
 
-      <!-- CONFIGURAÇÕES -->
       <div class="section-title">Configurações de Ingestão</div>
       <div class="row-2">
         <div class="form-group">
@@ -286,7 +283,6 @@
         </div>
       </div>
 
-      <!-- TIPO DE CONTEÚDO -->
       <div class="section-title">Tipo de Conteúdo</div>
       <div class="tipo-grid">
         <div class="tipo-card" onclick="selecionarTipo('livro_proprio', this)">
@@ -319,14 +315,13 @@
         </div>
       </div>
 
-      <!-- UPLOAD DINÂMICO -->
       <div class="upload-area" id="upload-livro_proprio">
         <div class="upload-card">
           <label>📖 Arquivo do Livro (PDF ou DOCX)</label>
           <input type="file" id="arquivo_livro_proprio" accept=".pdf,.docx" multiple>
         </div>
         <div class="chunk-info">⚙️ Chunk 1200 / Overlap 200 — otimizado para livros longos</div>
-        <div class="limit-info">⚠️ Limite de 50MB por arquivo — envie um arquivo por vez se necessário</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo</div>
       </div>
 
       <div class="upload-area" id="upload-artigo">
@@ -335,7 +330,7 @@
           <input type="file" id="arquivo_artigo" accept=".pdf,.docx,.txt" multiple>
         </div>
         <div class="chunk-info">⚙️ Chunk 800 / Overlap 150 — otimizado para documentos curtos</div>
-        <div class="limit-info">⚠️ Limite de 50MB por arquivo — envie um arquivo por vez se necessário</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo</div>
       </div>
 
       <div class="upload-area" id="upload-podcast_conteudo">
@@ -344,7 +339,7 @@
           <input type="file" id="arquivo_podcast_conteudo" accept=".mp3,.wav,.m4a,.ogg" multiple>
         </div>
         <div class="chunk-info">⚙️ Chunk 700 / Overlap 120 — otimizado para transcrições de conteúdo</div>
-        <div class="limit-info">⚠️ Limite de 50MB por arquivo — comprima o áudio se necessário</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo</div>
       </div>
 
       <div class="upload-area" id="upload-podcast_estilo">
@@ -353,53 +348,48 @@
           <input type="file" id="arquivo_podcast_estilo" accept=".mp3,.wav,.m4a,.ogg" multiple>
         </div>
         <div class="chunk-info">⚙️ Chunk 600 / Overlap 100 — otimizado para capturar expressões e jargões</div>
-        <div class="limit-info">⚠️ Limite de 50MB por arquivo — comprima o áudio se necessário</div>
+        <div class="limit-info">⚠️ Limite de 50MB por arquivo</div>
       </div>
 
       <button class="btn btn-primary" id="btnEnviar">🚀 Sincronizar Agora</button>
       <button class="btn btn-outline" id="btnHistorico">🔍 Consultar Histórico da Minha Base</button>
       <button class="btn btn-logout" id="btnLogout">Sair da conta</button>
 
-      <!-- HISTÓRICO -->
       <div id="history-section" class="history-section hidden">
         <div class="section-title">Conteúdos na Base</div>
         <input type="text" id="historySearch" class="history-search" placeholder="🔍 Filtrar por arquivo, tópico ou origem...">
         <div class="history-box">
           <table>
             <thead>
-              <tr>
-                <th>Arquivo</th>
-                <th>Tipo</th>
-                <th>Origem</th>
-                <th>Data</th>
-                <th></th>
-              </tr>
+              <tr><th>Arquivo</th><th>Tipo</th><th>Origem</th><th>Data</th><th></th></tr>
             </thead>
             <tbody id="historico-tbody">
-              <tr><td colspan="4" class="empty-state">Clique em "Consultar Histórico" para carregar.</td></tr>
+              <tr><td colspan="5" class="empty-state">Clique em "Consultar Histórico" para carregar.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <div class="status-box" id="status">Pronto para iniciar.</div>
-
     </div>
   </div>
 
-  <!-- ═══ TAB: COMENTÁRIOS LINKEDIN ═══ -->
+  <!-- TAB: COMENTÁRIOS LINKEDIN -->
   <div class="tab-pane" id="tab-comentarios">
     <div class="panel-body">
 
-      <!-- STATS -->
       <div class="li-stats-row">
         <div class="li-stat">
-          <div class="li-stat-num" id="li-stat-total">0</div>
-          <div class="li-stat-label">Comentários hoje</div>
+          <div class="li-stat-num" id="li-stat-dennis">—</div>
+          <div class="li-stat-label">Dennis hoje</div>
         </div>
         <div class="li-stat">
-          <div class="li-stat-num" id="li-stat-active" style="font-size:16px; padding-top:6px;">—</div>
-          <div class="li-stat-label">Conta ativa</div>
+          <div class="li-stat-num" id="li-stat-marcio">—</div>
+          <div class="li-stat-label">Márcio hoje</div>
+        </div>
+        <div class="li-stat">
+          <div class="li-stat-num" id="li-stat-total">—</div>
+          <div class="li-stat-label">Total hoje</div>
         </div>
       </div>
 
@@ -407,8 +397,9 @@
       <div class="li-accounts" id="li-accounts"></div>
 
       <div class="li-btn-row">
-        <button class="li-btn li-btn-primary" onclick="liTrigger()">🚀 Disparar comentário agora</button>
+        <button class="li-btn li-btn-primary" onclick="liTrigger()">🚀 Disparar agora</button>
         <button class="li-btn" onclick="liResetDay()">🔄 Zerar dia</button>
+        <button class="li-btn" onclick="liCarregarContador()">↻ Atualizar</button>
       </div>
 
       <div class="section-title">Log de ações</div>
@@ -423,7 +414,63 @@
     </div>
   </div>
 
-</div><!-- /upload-screen -->
+  <!-- TAB: CONFIGURAÇÕES -->
+  <div class="tab-pane" id="tab-configuracoes">
+    <div class="panel-body">
+
+      <div id="config-loading" class="config-loading">⏳ Carregando configurações...</div>
+
+      <div id="config-form" class="hidden">
+
+        <div class="section-title">Prompt do Comentador</div>
+
+        <div class="config-field">
+          <label>Frases de Abertura</label>
+          <div class="config-hint">Separadas por vírgula. Ex: Verdade., Boa., Faz sentido sim.</div>
+          <textarea id="cfg-frases_abertura" rows="4"></textarea>
+        </div>
+
+        <div class="config-field">
+          <label>Expressões Naturais</label>
+          <div class="config-hint">Separadas por vírgula. Use no máximo 1 por comentário.</div>
+          <textarea id="cfg-expressoes_naturais" rows="6"></textarea>
+        </div>
+
+        <div class="config-field">
+          <label>Assinaturas</label>
+          <div class="config-hint">Separadas por vírgula. Ex: Forte abraço!, Abs!</div>
+          <textarea id="cfg-assinaturas" rows="2"></textarea>
+        </div>
+
+        <div class="config-field">
+          <label>Palavras Banidas</label>
+          <div class="config-hint">Separadas por vírgula. A IA nunca usará essas palavras.</div>
+          <textarea id="cfg-palavras_banidas" rows="3"></textarea>
+        </div>
+
+        <div class="section-title">Tamanho do Comentário</div>
+
+        <div class="config-row-2">
+          <div class="config-field">
+            <label>Mínimo de Palavras</label>
+            <input type="number" id="cfg-tamanho_min" min="5" max="50">
+          </div>
+          <div class="config-field">
+            <label>Máximo de Palavras</label>
+            <input type="number" id="cfg-tamanho_max" min="10" max="100">
+          </div>
+        </div>
+
+        <button class="btn btn-success" id="btnSalvarConfig">💾 Salvar Configurações</button>
+
+        <div class="status-box hidden" id="config-status"></div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
 
 <script>
   // ═══════════════════════════════════════════════
@@ -431,18 +478,18 @@
   // ═══════════════════════════════════════════════
   const SUPABASE_URL = "https://jbgqeyvjawwsheuwgyzb.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiZ3FleXZqYXd3c2hldXdneXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMTY1NzcsImV4cCI6MjA4NjU5MjU3N30.DIkXgReMx7JbjUX5k5glyvcleifGzkcLIQGOXkrQJVk";
-  const WEBHOOK_N8N     = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/upload-documentos";
+  const WEBHOOK_N8N = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/upload-documentos";
   const WEBHOOK_LINKEDIN = "/api/proxy";
+  const WEBHOOK_CONTADOR = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/consultar-comentarios-hoje";
+  const WEBHOOK_LER_CONFIG = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/ler-configuracoes";
+  const WEBHOOK_SALVAR_CONFIG = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/salvar-configuracoes";
 
   const LI_ACCOUNTS = [
     { id: 'dennis', label: 'Dennis', phone: '+55 11 97660-0520', badgeClass: 'li-badge-dennis', fillClass: 'li-fill-dennis', logClass: 'li-log-dennis' },
-    { id: 'marcio',  label: 'Márcio',  phone: '+55 11 97655-9197', badgeClass: 'li-badge-marcio',  fillClass: 'li-fill-marcio',  logClass: 'li-log-marcio'  }
+    { id: 'marcio',  label: 'Márcio',  phone: '+55 11 97655-9197', badgeClass: 'li-badge-marcio',  fillClass: 'li-fill-marcio',  logClass: 'li-log-marcio' }
   ];
   const LI_LIMIT = 25;
 
-  // ═══════════════════════════════════════════════
-  // SUPABASE
-  // ═══════════════════════════════════════════════
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 
@@ -457,7 +504,8 @@
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
-    if (name === 'comentarios') liRender();
+    if (name === 'comentarios') { liRender(); liCarregarContador(); }
+    if (name === 'configuracoes') carregarConfiguracoes();
   }
 
   // ═══════════════════════════════════════════════
@@ -564,9 +612,6 @@
     await loadStats(data.id);
   });
 
-  // ═══════════════════════════════════════════════
-  // LOGOUT
-  // ═══════════════════════════════════════════════
   document.getElementById('btnLogout').addEventListener('click', () => {
     document.getElementById('upload-screen').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
@@ -576,9 +621,6 @@
     setStatus('Pronto para iniciar.');
   });
 
-  // ═══════════════════════════════════════════════
-  // FILTRO HISTÓRICO
-  // ═══════════════════════════════════════════════
   document.getElementById('historySearch').addEventListener('input', (e) => {
     const termo = e.target.value.toLowerCase();
     const filtrados = baseDeDadosLocal.filter(i =>
@@ -599,7 +641,7 @@
     const topicoBase = document.getElementById('topico').value || 'Sem Tópico';
     for (const f of [...input.files]) {
       if (f.size > 50 * 1024 * 1024) {
-        setStatus(`❌ "${f.name}" excede o limite de 50MB (${(f.size / 1024 / 1024).toFixed(1)}MB). Comprima o arquivo e tente novamente.`, 'error');
+        setStatus(`❌ "${f.name}" excede o limite de 50MB. Comprima e tente novamente.`, 'error');
         continue;
       }
       const topicoIndividual = `${topicoBase} - ${f.name}`;
@@ -623,8 +665,6 @@
     setStatus('🚀 Processando uploads...');
     try {
       const userId = document.getElementById('user-id').value;
-      const { data: historicoAtual } = await sb.from('documents').select('metadata, document_type, created_at').eq('user_id', userId);
-      baseDeDadosLocal = historicoAtual || [];
       const mapaInputs = {
         livro_proprio:    { inputId: 'arquivo_livro_proprio',    categoria: 'livro_proprio' },
         artigo:           { inputId: 'arquivo_artigo',           categoria: 'artigo' },
@@ -655,9 +695,6 @@
     }
   });
 
-  // ═══════════════════════════════════════════════
-  // HISTÓRICO
-  // ═══════════════════════════════════════════════
   async function carregarHistorico() {
     const userId = document.getElementById('user-id').value;
     const { data, error } = await sb.rpc('get_documents_summary', { p_user_id: userId });
@@ -712,6 +749,32 @@
   });
 
   // ═══════════════════════════════════════════════
+  // CONTADOR REAL DE COMENTÁRIOS
+  // ═══════════════════════════════════════════════
+  async function liCarregarContador() {
+    try {
+      const res = await fetch(WEBHOOK_CONTADOR);
+      const data = await res.json();
+      const dennis = data.dennis || 0;
+      const marcio = data.marcio || 0;
+      document.getElementById('li-stat-dennis').textContent = dennis;
+      document.getElementById('li-stat-marcio').textContent = marcio;
+      document.getElementById('li-stat-total').textContent = dennis + marcio;
+
+      // Atualiza também os cards de progresso
+      const s = liLoadState();
+      s.counts.dennis = dennis;
+      s.counts.marcio = marcio;
+      liSaveState(s);
+      liRender();
+    } catch(e) {
+      document.getElementById('li-stat-dennis').textContent = '—';
+      document.getElementById('li-stat-marcio').textContent = '—';
+      document.getElementById('li-stat-total').textContent = '—';
+    }
+  }
+
+  // ═══════════════════════════════════════════════
   // COMENTÁRIOS LINKEDIN
   // ═══════════════════════════════════════════════
   const LI_STORE_KEY = 'gw_li_state';
@@ -748,14 +811,12 @@
     const s = liLoadState();
     const grid = document.getElementById('li-accounts');
     grid.innerHTML = '';
-    let total = 0;
 
     LI_ACCOUNTS.forEach(acc => {
       const count = s.counts[acc.id] || 0;
       const isActive = s.active === acc.id;
       const isBlocked = count >= LI_LIMIT;
       const pct = Math.min(100, Math.round((count / LI_LIMIT) * 100));
-      total += count;
 
       const badgeLabel = isBlocked ? 'bloqueado' : (isActive ? 'ativa' : 'inativa');
       const badgeClass = isBlocked ? 'li-badge-blocked' : (isActive ? 'li-badge-active' : acc.badgeClass);
@@ -774,13 +835,6 @@
       `;
       grid.appendChild(card);
     });
-
-    document.getElementById('li-stat-total').textContent = total;
-    const activeAcc = LI_ACCOUNTS.find(a => a.id === s.active);
-    if (activeAcc) {
-      const cnt = s.counts[s.active] || 0;
-      document.getElementById('li-stat-active').textContent = activeAcc.label;
-    }
 
     const logList = document.getElementById('li-log');
     if (!s.logs.length) {
@@ -829,10 +883,10 @@
     })
     .then(() => {
       const s2 = liLoadState();
-      s2.counts[s2.active] = (s2.counts[s2.active] || 0) + 1;
-      liAddLog(s2, s2.active, `Fluxo disparado. Total hoje: ${s2.counts[s2.active]}`);
+      liAddLog(s2, s2.active, `Fluxo disparado com sucesso.`);
       liSaveState(s2);
       liRender();
+      setTimeout(liCarregarContador, 3000);
     })
     .catch(() => {
       const s2 = liLoadState();
@@ -850,7 +904,73 @@
     liAddLog(s, 'system', 'Contadores zerados manualmente.');
     liSaveState(s);
     liRender();
+    document.getElementById('li-stat-dennis').textContent = '0';
+    document.getElementById('li-stat-marcio').textContent = '0';
+    document.getElementById('li-stat-total').textContent = '0';
   }
+
+  // ═══════════════════════════════════════════════
+  // CONFIGURAÇÕES DO PROMPT
+  // ═══════════════════════════════════════════════
+  async function carregarConfiguracoes() {
+    const loading = document.getElementById('config-loading');
+    const form = document.getElementById('config-form');
+    loading.classList.remove('hidden');
+    form.classList.add('hidden');
+
+    try {
+      const res = await fetch(WEBHOOK_LER_CONFIG);
+      const data = await res.json();
+
+      document.getElementById('cfg-frases_abertura').value = data.frases_abertura || '';
+      document.getElementById('cfg-expressoes_naturais').value = data.expressoes_naturais || '';
+      document.getElementById('cfg-assinaturas').value = data.assinaturas || '';
+      document.getElementById('cfg-palavras_banidas').value = data.palavras_banidas || '';
+      document.getElementById('cfg-tamanho_min').value = data.tamanho_min || 15;
+      document.getElementById('cfg-tamanho_max').value = data.tamanho_max || 35;
+
+      loading.classList.add('hidden');
+      form.classList.remove('hidden');
+    } catch(e) {
+      loading.textContent = '❌ Erro ao carregar configurações. Verifique se o workflow está ativo.';
+    }
+  }
+
+  document.getElementById('btnSalvarConfig').addEventListener('click', async () => {
+    const btn = document.getElementById('btnSalvarConfig');
+    const statusEl = document.getElementById('config-status');
+    btn.textContent = '⏳ Salvando...';
+    btn.disabled = true;
+
+    const payload = {
+      frases_abertura: document.getElementById('cfg-frases_abertura').value.trim(),
+      expressoes_naturais: document.getElementById('cfg-expressoes_naturais').value.trim(),
+      assinaturas: document.getElementById('cfg-assinaturas').value.trim(),
+      palavras_banidas: document.getElementById('cfg-palavras_banidas').value.trim(),
+      tamanho_min: document.getElementById('cfg-tamanho_min').value,
+      tamanho_max: document.getElementById('cfg-tamanho_max').value,
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_SALVAR_CONFIG, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Erro ' + res.status);
+      statusEl.textContent = '✅ Configurações salvas com sucesso!';
+      statusEl.className = 'status-box success';
+      statusEl.classList.remove('hidden');
+    } catch(e) {
+      statusEl.textContent = '❌ Erro ao salvar: ' + e.message;
+      statusEl.className = 'status-box error';
+      statusEl.classList.remove('hidden');
+    } finally {
+      btn.textContent = '💾 Salvar Configurações';
+      btn.disabled = false;
+      setTimeout(() => statusEl.classList.add('hidden'), 4000);
+    }
+  });
 </script>
 </body>
 </html>
