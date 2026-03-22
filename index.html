@@ -480,9 +480,10 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiZ3FleXZqYXd3c2hldXdneXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwMTY1NzcsImV4cCI6MjA4NjU5MjU3N30.DIkXgReMx7JbjUX5k5glyvcleifGzkcLIQGOXkrQJVk";
   const WEBHOOK_N8N = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/upload-documentos";
   const WEBHOOK_LINKEDIN = "/api/proxy";
-  const WEBHOOK_CONTADOR = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/consultar-comentarios-hoje";
-  const WEBHOOK_LER_CONFIG = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/ler-configuracoes";
-  const WEBHOOK_SALVAR_CONFIG = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook/salvar-configuracoes";
+  const N8N_BASE = "https://jonyai-n8n-webhook.ol0xob.easypanel.host/webhook";
+  const WEBHOOK_CONTADOR = N8N_BASE + "/consultar-comentarios-hoje";
+  const WEBHOOK_LER_CONFIG = N8N_BASE + "/ler-configuracoes";
+  const WEBHOOK_SALVAR_CONFIG = N8N_BASE + "/salvar-configuracoes";
 
   const LI_ACCOUNTS = [
     { id: 'dennis', label: 'Dennis', phone: '+55 11 97660-0520', badgeClass: 'li-badge-dennis', fillClass: 'li-fill-dennis', logClass: 'li-log-dennis' },
@@ -753,7 +754,11 @@
   // ═══════════════════════════════════════════════
   async function liCarregarContador() {
     try {
-      const res = await fetch(WEBHOOK_CONTADOR);
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ _target_url: WEBHOOK_CONTADOR })
+      });
       const data = await res.json();
       const dennis = data.dennis || 0;
       const marcio = data.marcio || 0;
@@ -919,7 +924,11 @@
     form.classList.add('hidden');
 
     try {
-      const res = await fetch(WEBHOOK_LER_CONFIG);
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ _target_url: WEBHOOK_LER_CONFIG })
+      });
       const data = await res.json();
 
       document.getElementById('cfg-frases_abertura').value = data.frases_abertura || '';
@@ -952,10 +961,10 @@
     };
 
     try {
-      const res = await fetch(WEBHOOK_SALVAR_CONFIG, {
+      const res = await fetch('/api/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ _target_url: WEBHOOK_SALVAR_CONFIG, ...payload })
       });
       if (!res.ok) throw new Error('Erro ' + res.status);
       statusEl.textContent = '✅ Configurações salvas com sucesso!';
