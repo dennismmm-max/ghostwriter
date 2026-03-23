@@ -199,6 +199,7 @@
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="login-screen" class="container">
   <div class="login-wrap">
     <div class="logo">
@@ -214,6 +215,7 @@
   </div>
 </div>
 
+<!-- PAINEL PRINCIPAL -->
 <div id="upload-screen" class="container hidden">
 
   <div class="panel-header">
@@ -231,6 +233,7 @@
     <button class="tab-btn" onclick="switchTab('configuracoes', this)">⚙️ Configurações</button>
   </div>
 
+  <!-- TAB: INGESTÃO -->
   <div class="tab-pane active" id="tab-ingestao">
     <div class="panel-body">
       <input type="hidden" id="user-id">
@@ -371,6 +374,7 @@
     </div>
   </div>
 
+  <!-- TAB: COMENTÁRIOS LINKEDIN -->
   <div class="tab-pane" id="tab-comentarios">
     <div class="panel-body">
 
@@ -410,6 +414,7 @@
     </div>
   </div>
 
+  <!-- TAB: CONFIGURAÇÕES -->
   <div class="tab-pane" id="tab-configuracoes">
     <div class="panel-body">
 
@@ -453,6 +458,56 @@
           <div class="config-field">
             <label>Máximo de Palavras</label>
             <input type="number" id="cfg-tamanho_max" min="10" max="100">
+          </div>
+        </div>
+
+        <div class="section-title">Filtro de Posts</div>
+
+        <div class="config-row-2">
+          <div class="config-field">
+            <label>Ignorar posts curtos</label>
+            <div class="config-hint">Mínimo de palavras para comentar. Posts menores são pulados.</div>
+            <input type="number" id="cfg-min_palavras" min="1" max="20">
+          </div>
+          <div class="config-field">
+            <label>Idade máxima do post</label>
+            <div class="config-hint">Posts mais antigos que este número de dias são ignorados.</div>
+            <input type="number" id="cfg-max_age_days" min="1" max="365">
+          </div>
+        </div>
+
+        <div class="config-field">
+          <label>Blacklist de concorrentes</label>
+          <div class="config-hint">Termos da headline para pular. Separados por vírgula. Ex: palestrante, coach de vendas</div>
+          <textarea id="cfg-blacklist_concorrentes" rows="3"></textarea>
+        </div>
+
+        <div class="config-row-2">
+          <div class="config-field">
+            <label>Alerta — Post antigo (dias)</label>
+            <div class="config-hint">Exibe alerta se o post tiver mais que X dias.</div>
+            <input type="number" id="cfg-alerta_post_antigo_dias" min="1" max="60">
+          </div>
+          <div class="config-field">
+            <label>Alerta — Alto engajamento</label>
+            <div class="config-hint">Exibe alerta se o post tiver mais que X comentários.</div>
+            <input type="number" id="cfg-alerta_alto_engajamento" min="1" max="200">
+          </div>
+        </div>
+
+        <div class="section-title">Estilo Personalizado (IA)</div>
+
+        <div class="config-field">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1.5px solid var(--border);border-radius:var(--radius);background:white;">
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-main);">🧠 Usar meu estilo pessoal</div>
+              <div style="font-size:12px;color:var(--text-sub);margin-top:4px;">A IA consulta sua base de conhecimento antes de comentar.</div>
+            </div>
+            <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;margin:0;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="cfg-usar_estilo_pessoal" style="opacity:0;width:0;height:0;position:absolute;">
+              <span id="toggle-slider" style="position:absolute;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:26px;transition:0.3s;"></span>
+              <span id="toggle-knob" style="position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></span>
+            </label>
           </div>
         </div>
 
@@ -864,26 +919,14 @@
     }).catch(() => {});
   }
 
-  let isTriggering = false; // Trava de segurança para evitar duplo clique
-
   function liTrigger() {
-    if (isTriggering) return; // Se já estiver a processar, ignora o clique extra
-    
     const s = liLoadState();
     const acc = LI_ACCOUNTS.find(a => a.id === s.active);
     const count = s.counts[s.active] || 0;
-    
     if (count >= LI_LIMIT) {
       alert(`Limite de ${LI_LIMIT} comentários atingido para ${acc.label}. Troque de conta ou zere o dia.`);
       return;
     }
-    
-    isTriggering = true; // Ativa a trava
-    const btn = document.querySelector('.li-btn-primary');
-    const textoOriginal = btn.innerHTML;
-    btn.innerHTML = '⏳ Disparando...'; // Feedback visual no botão
-    btn.style.opacity = '0.7';
-
     liAddLog(s, s.active, 'Disparando fluxo...');
     liSaveState(s);
     liRender();
@@ -905,11 +948,6 @@
       liAddLog(s2, 'system', 'Erro ao chamar o webhook.');
       liSaveState(s2);
       liRender();
-    })
-    .finally(() => {
-      isTriggering = false; // Liberta a trava
-      btn.innerHTML = textoOriginal; // Devolve o texto ao botão
-      btn.style.opacity = '1';
     });
   }
 
@@ -925,6 +963,28 @@
     document.getElementById('li-stat-marcio').textContent = '0';
     document.getElementById('li-stat-total').textContent = '0';
   }
+
+  // ═══════════════════════════════════════════════
+  // TOGGLE ESTILO PESSOAL
+  // ═══════════════════════════════════════════════
+  function atualizarToggle(ativo) {
+    const slider = document.getElementById('toggle-slider');
+    const knob = document.getElementById('toggle-knob');
+    if (ativo) {
+      slider.style.background = 'var(--primary)';
+      knob.style.transform = 'translateX(22px)';
+    } else {
+      slider.style.background = 'var(--border)';
+      knob.style.transform = 'translateX(0)';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const chk = document.getElementById('cfg-usar_estilo_pessoal');
+    if (chk) {
+      chk.addEventListener('change', () => atualizarToggle(chk.checked));
+    }
+  });
 
   // ═══════════════════════════════════════════════
   // CONFIGURAÇÕES DO PROMPT
@@ -949,6 +1009,14 @@
       document.getElementById('cfg-palavras_banidas').value = data.palavras_banidas || '';
       document.getElementById('cfg-tamanho_min').value = data.tamanho_min || 15;
       document.getElementById('cfg-tamanho_max').value = data.tamanho_max || 35;
+      document.getElementById('cfg-min_palavras').value = data.min_palavras || 3;
+      document.getElementById('cfg-max_age_days').value = data.max_age_days || 180;
+      document.getElementById('cfg-blacklist_concorrentes').value = data.blacklist_concorrentes || '';
+      document.getElementById('cfg-alerta_post_antigo_dias').value = data.alerta_post_antigo_dias || 15;
+      document.getElementById('cfg-alerta_alto_engajamento').value = data.alerta_alto_engajamento || 20;
+      const usarEstilo = data.usar_estilo_pessoal === 'sim';
+      document.getElementById('cfg-usar_estilo_pessoal').checked = usarEstilo;
+      atualizarToggle(usarEstilo);
 
       loading.classList.add('hidden');
       form.classList.remove('hidden');
@@ -970,6 +1038,12 @@
       palavras_banidas: document.getElementById('cfg-palavras_banidas').value.trim(),
       tamanho_min: document.getElementById('cfg-tamanho_min').value,
       tamanho_max: document.getElementById('cfg-tamanho_max').value,
+      min_palavras: document.getElementById('cfg-min_palavras').value,
+      max_age_days: document.getElementById('cfg-max_age_days').value,
+      blacklist_concorrentes: document.getElementById('cfg-blacklist_concorrentes').value.trim(),
+      alerta_post_antigo_dias: document.getElementById('cfg-alerta_post_antigo_dias').value,
+      alerta_alto_engajamento: document.getElementById('cfg-alerta_alto_engajamento').value,
+      usar_estilo_pessoal: document.getElementById('cfg-usar_estilo_pessoal').checked ? 'sim' : 'nao',
     };
 
     try {
